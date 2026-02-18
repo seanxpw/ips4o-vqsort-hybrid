@@ -53,7 +53,7 @@
 #endif
 
 #ifndef IPS4OML_BASE_CASE_SIZE
-#define IPS4OML_BASE_CASE_SIZE 16
+#define IPS4OML_BASE_CASE_SIZE 8192
 #endif
 
 #ifndef IPS4OML_BASE_CASE_MULTIPLIER
@@ -61,7 +61,7 @@
 #endif
 
 #ifndef IPS4OML_BLOCK_SIZE
-#define IPS4OML_BLOCK_SIZE (2 << 10)
+#define IPS4OML_BLOCK_SIZE 1024
 #endif
 
 #ifndef IPS4OML_BUCKET_TYPE
@@ -89,7 +89,7 @@
 #endif
 
 #ifndef IPS4OML_UNROLL_CLASSIFIER
-#define IPS4OML_UNROLL_CLASSIFIER 7
+#define IPS4OML_UNROLL_CLASSIFIER 6
 #endif
 
 namespace ips4o {
