@@ -91,7 +91,7 @@ template <> struct is_simd_sortable<double>   : std::true_type {};
 
 // 注意：如果你的平台 int 就是 int32_t，上面的特化会自动覆盖。
 // 但为了防止某些平台定义不同，也可以显式加上原生类型：
-template <> struct is_simd_sortable<int> : std::true_type {};
+// template <> struct is_simd_sortable<int> : std::true_type {};
 
 
 /**
