@@ -48,6 +48,11 @@
 #include "hwy_sort_int.hpp"
 #include "sort_hwy_pair.hpp"
 #include "parlay/slice.h"
+#if defined(IPS4O_HYBRID_USE_PROJECT_BASE_CASE)
+#include "../../../../src/modules/utils/type_helpers.hpp"
+#else
+#include "type_helpers.hpp"
+#endif
 namespace ips4o {
 namespace detail {
 
@@ -74,26 +79,6 @@ void insertionSort(const It begin, const It end, Comp comp) {
     }
 }
 
-
-
-// 1. 定义一个 Trait 来集中管理支持 SIMD 的类型
-// 默认情况为 false
-template <typename T>
-struct is_simd_sortable : std::false_type {};
-
-// 2. 特化白名单：将支持的类型设为 true
-template <> struct is_simd_sortable<int32_t>  : std::true_type {};
-template <> struct is_simd_sortable<uint32_t> : std::true_type {};
-template <> struct is_simd_sortable<int64_t>  : std::true_type {};
-template <> struct is_simd_sortable<uint64_t> : std::true_type {};
-template <> struct is_simd_sortable<float>    : std::true_type {};
-template <> struct is_simd_sortable<double>   : std::true_type {};
-
-// 注意：如果你的平台 int 就是 int32_t，上面的特化会自动覆盖。
-// 但为了防止某些平台定义不同，也可以显式加上原生类型：
-// template <> struct is_simd_sortable<int> : std::true_type {};
-
-
 /**
  * Wrapper for base case sorter.
  */
@@ -103,18 +88,14 @@ inline void baseCaseSort(It begin, It end, Comp&& comp) {
 
     using ValueType = typename std::iterator_traits<It>::value_type;
 
-    // 3. 使用 if constexpr 进行编译期分发
-    //is_simd_sortable<ValueType>::value 会在编译期计算出 true/false
-    if constexpr (is_simd_sortable<ValueType>::value) {
-        
+    if constexpr (ss_sort::detail::is_hwy_vqsort_supported_scalar_v<ValueType>) {
         auto s = parlay::make_slice(begin, end);
         parlay::internal_simd::unstable_sort_hwy_inplace(s);
-        
-    } else {
-        
+    } else if constexpr (ss_sort::detail::is_kvpair_v<ValueType>) {
         auto s = parlay::make_slice(begin, end);
         parlay::internal_simd::unstable_sort_pairs_hwy(s);
-        
+    } else {
+        insertionSort(begin, end, std::forward<Comp>(comp));
     }
 }
 
