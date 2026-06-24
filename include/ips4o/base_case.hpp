@@ -53,6 +53,11 @@
 #else
 #include "type_helpers.hpp"
 #endif
+
+#ifndef IPS4O_HYBRID_PAIR_SECOND_IS_KEY
+#define IPS4O_HYBRID_PAIR_SECOND_IS_KEY 0
+#endif
+
 namespace ips4o {
 namespace detail {
 
@@ -93,7 +98,8 @@ inline void baseCaseSort(It begin, It end, Comp&& comp) {
         parlay::internal_simd::unstable_sort_hwy_inplace(s);
     } else if constexpr (ss_sort::detail::is_kvpair_v<ValueType>) {
         auto s = parlay::make_slice(begin, end);
-        parlay::internal_simd::unstable_sort_pairs_hwy(s);
+        parlay::internal_simd::unstable_sort_pairs_hwy<
+            IPS4O_HYBRID_PAIR_SECOND_IS_KEY != 0>(s);
     } else {
         insertionSort(begin, end, std::forward<Comp>(comp));
     }
